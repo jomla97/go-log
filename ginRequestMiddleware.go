@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//WriteRequestMiddleware writes information about a HTTP request to the log with a timestamp appended
-func WriteRequestMiddleware(c *gin.Context) {
+//GinRequestMiddleware writes information about a HTTP request to the log with a timestamp appended
+func GinRequestMiddleware(c *gin.Context) {
 	//Save start time
 	startTime := time.Now()
 
@@ -21,7 +21,7 @@ func WriteRequestMiddleware(c *gin.Context) {
 	tee := io.TeeReader(c.Request.Body, &buf)
 	bodyBytes, err := ioutil.ReadAll(tee)
 	if err != nil {
-		WriteError(fmt.Errorf("failed to read body: %v", err.Error()))
+		Errorf("failed to read body: %v", err)
 	} else {
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
