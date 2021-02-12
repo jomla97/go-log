@@ -16,5 +16,15 @@ func Info(args ...interface{}) {
 		}
 	}
 
-	fmt.Println("["+time.Now().Format(time.UnixDate)+"]", "[INFO]", fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("%v %v %v\n", "["+time.Now().Format(DateFormat)+"]", "[INFO]", fmt.Sprintf(format, args...))
+
+	fmt.Print(msg)
+
+	if file != nil {
+		//Write to the file
+		err := WriteToFile(msg)
+		if err != nil {
+			Errorf("failed to write to output file: %v", err.Error())
+		}
+	}
 }

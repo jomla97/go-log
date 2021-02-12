@@ -62,7 +62,18 @@ func GinRequestMiddleware(c *gin.Context) {
 			}
 
 			//Write in console
-			fmt.Println("["+time.Now().Format(time.UnixDate)+"] [REQUEST]", statusString, "|", fmt.Sprintf("%-10s", elapsedString), "|", c.Request.Method, c.Request.URL.String(), string(bodyBytes))
+			msg := fmt.Sprintf("%v %v %v %v %v %v %v %v\n", "["+time.Now().Format(DateFormat)+"] [REQUEST]", statusString, "|", fmt.Sprintf("%-10s", elapsedString), "|", c.Request.Method, c.Request.URL.String(), string(bodyBytes))
+
+			fmt.Print(msg)
+
+			if file != nil {
+				//Write to the OutputFile
+				err = WriteToFile(msg)
+				if err != nil {
+					Errorf("failed to write to output file: %v", err.Error())
+				}
+			}
+
 			return
 		}
 	}(c, bodyBytes)

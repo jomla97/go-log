@@ -7,5 +7,12 @@ import (
 
 //Error writes an error to the log with a timestamp and [ERROR] tag appended
 func Error(err error) {
-	fmt.Println("["+time.Now().Format(time.UnixDate)+"]", "\u001b[31m[ERROR]\u001b[0m", err.Error())
+	msg := "[" + time.Now().Format(DateFormat) + "] %v[ERROR]%v " + err.Error() + "\n"
+
+	fmt.Printf(msg, "\u001b[31m", "\u001b[0m")
+
+	if file != nil {
+		//Write to the file
+		WriteToFile(fmt.Sprintf(msg, "", ""))
+	}
 }
