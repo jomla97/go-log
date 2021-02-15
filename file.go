@@ -21,7 +21,7 @@ func SetPath(path string) error {
 	}
 
 	//Open the file
-	f, err := os.OpenFile("testlog.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %v", err.Error())
 	}
