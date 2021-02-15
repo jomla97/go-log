@@ -34,3 +34,16 @@ log.Errorf("something went wrong: %v", err)
 router := gin.New()
 router.Use(log.GinRequestMiddleware)
 ```
+
+## Set path to file to write to
+```go
+err := log.SetPath("/path/to/my.log")
+
+path := log.GetPath()
+```
+
+## Change the date format used in the log file
+Default value: `2006-01-02 15:04:05`.
+```go
+log.DateFormat = "some format"
+```
