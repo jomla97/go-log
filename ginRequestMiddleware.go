@@ -13,6 +13,11 @@ import (
 
 //GinRequestMiddleware writes information about a HTTP request to the log with a timestamp appended
 func GinRequestMiddleware(c *gin.Context) {
+	colorReset := "\u001b[0m"
+	red := "\u001b[31m"
+	orange := "\u001b[38;5;209m"
+	yellow := "\u001b[33m"
+
 	//Save start time
 	startTime := time.Now()
 
@@ -34,13 +39,23 @@ func GinRequestMiddleware(c *gin.Context) {
 			var elapsedString string
 			if elapsed.Minutes() >= 1 {
 				//Format as minutes and seconds
-				elapsedString = fmt.Sprintf("%vm%vs", math.Round(elapsed.Minutes()), math.Round(math.Mod(elapsed.Seconds(), 60)))
+				elapsedString = red + fmt.Sprintf("%vm%vs", math.Round(elapsed.Minutes()), math.Round(math.Mod(elapsed.Seconds(), 60)))
 			} else if elapsed.Seconds() >= 1 {
 				//Format as seconds
-				elapsedString = fmt.Sprintf("%gs", float64(elapsed.Milliseconds())/float64(1000))
+				elapsedString = red + fmt.Sprintf("%gs", float64(elapsed.Milliseconds())/float64(1000))
 			} else if elapsed.Milliseconds() >= 1 {
 				//Format as milliseconds
-				elapsedString = fmt.Sprintf("%gms", float64(elapsed.Microseconds())/float64(1000))
+				ms := float64(elapsed.Microseconds()) / float64(1000)
+
+				if elapsed.Milliseconds() >= 700 {
+					elapsedString = fmt.Sprintf("%s%gms", red, ms)
+				} else if elapsed.Milliseconds() >= 400 {
+					elapsedString = fmt.Sprintf("%s%gms", orange, ms)
+				} else if elapsed.Milliseconds() >= 100 {
+					elapsedString = fmt.Sprintf("%s%gms", yellow, ms)
+				} else {
+					elapsedString = fmt.Sprintf("%gms", ms)
+				}
 			} else if elapsed.Microseconds() >= 1 {
 				//Format as microseconds
 				elapsedString = fmt.Sprintf("%gµs", float64(elapsed.Nanoseconds())/float64(1000))
@@ -48,6 +63,8 @@ func GinRequestMiddleware(c *gin.Context) {
 				//Format as nanoseconds
 				elapsedString = fmt.Sprintf("%vns", elapsed.Nanoseconds())
 			}
+
+			elapsedString += colorReset
 
 			statusString := fmt.Sprintf(" %v ", c.Writer.Status())
 			if c.Writer.Status() >= 200 && c.Writer.Status() <= 299 {
