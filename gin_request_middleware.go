@@ -24,18 +24,6 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
-func ginBodyLogMiddleware(c *gin.Context) {
-	blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
-	c.Writer = blw
-	c.Next()
-	statusCode := c.Writer.Status()
-	if statusCode >= 400 {
-		//ok this is an request with error, let's make a record for it
-		// now print body (or log in your preferred way)
-		fmt.Println("Response body: " + blw.body.String())
-	}
-}
-
 // GinRequestMiddleware writes information about a HTTP request to the log with a timestamp appended
 func GinRequestMiddleware(c *gin.Context) {
 	colorReset := "\u001b[0m"
