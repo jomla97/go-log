@@ -11,7 +11,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//GinRequestMiddleware writes information about a HTTP request to the log with a timestamp appended
+// GinResponse if true logs entire response body
+var GinResponse = false
+
+type bodyLogWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w bodyLogWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
+// GinRequestMiddleware writes information about a HTTP request to the log with a timestamp appended
 func GinRequestMiddleware(c *gin.Context) {
 	colorReset := "\u001b[0m"
 	red := "\u001b[31m"
@@ -30,6 +43,10 @@ func GinRequestMiddleware(c *gin.Context) {
 	} else {
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
+
+	// create a body log writer, for potentially logging response body
+	blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+	c.Writer = blw
 
 	go func(c *gin.Context, bodyBytes []byte) {
 		select {
@@ -78,16 +95,24 @@ func GinRequestMiddleware(c *gin.Context) {
 				statusString = "\u001b[44;1m" + statusString + "\u001b[0m"
 			}
 
-			//Write in console
-			msg := fmt.Sprintf("%v %v %v %v %v %v %v %v\n", "["+time.Now().Format(DateFormat)+"] [REQUEST]", statusString, "|", fmt.Sprintf("%-10s", elapsedString), "|", c.Request.Method, c.Request.URL.String(), string(bodyBytes))
+			var msg = ""
+			if GinResponse {
+				//Write in console with response body
+				msg = fmt.Sprintf("%v %v %v %v %v %v %v %v %v %v\n", "["+time.Now().Format(DateFormat)+"] [REQUEST]", statusString, "|", fmt.Sprintf("%-10s", elapsedString), "|", c.Request.Method, c.Request.URL.String(), string(bodyBytes), "|", blw.body.String())
+			} else {
+				//Write in console
+				msg = fmt.Sprintf("%v %v %v %v %v %v %v %v\n", "["+time.Now().Format(DateFormat)+"] [REQUEST]", statusString, "|", fmt.Sprintf("%-10s", elapsedString), "|", c.Request.Method, c.Request.URL.String(), string(bodyBytes))
+			}
 
-			fmt.Print(msg)
+			if msg != "" {
+				fmt.Print(msg)
 
-			if file != nil {
-				//Write to the OutputFile
-				err = WriteToFile(msg)
-				if err != nil {
-					Errorf("failed to write to output file: %v", err.Error())
+				if file != nil {
+					//Write to the OutputFile
+					err = WriteToFile(msg)
+					if err != nil {
+						Errorf("failed to write to output file: %v", err.Error())
+					}
 				}
 			}
 
