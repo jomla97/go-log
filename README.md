@@ -31,6 +31,12 @@ log.Errorf("something went wrong: %v", err)
 
 ## Gin request middleware
 ```go
+//Default
+router := gin.New()
+router.Use(log.GinRequestMiddleware)
+
+//With response body
+log.LogResponse = true
 router := gin.New()
 router.Use(log.GinRequestMiddleware)
 ```
