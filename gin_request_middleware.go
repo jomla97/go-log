@@ -97,7 +97,7 @@ func GinRequestMiddleware(c *gin.Context) {
 
 			var msg = ""
 			if LogResponse {
-				//Write in console
+				//Write in console with response body
 				msg = fmt.Sprintf("%v %v %v %v %v %v %v %v %v %v\n", "["+time.Now().Format(DateFormat)+"] [REQUEST]", statusString, "|", fmt.Sprintf("%-10s", elapsedString), "|", c.Request.Method, c.Request.URL.String(), string(bodyBytes), "|", blw.body.String())
 			} else {
 				//Write in console
